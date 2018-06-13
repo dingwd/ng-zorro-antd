@@ -1,4 +1,4 @@
-<li #dragElement
+<li #dragElement *ngIf="!nzSearchValue || nzTreeNode.isParentMatched || nzTreeNode.isMatched"
   [class.ant-tree-treenode-disabled]="nzTreeNode.isDisabled"
   (dblclick)="_dblClickNode($event,nzTreeNode)"
   (click)="_clickNode($event,nzTreeNode)"
@@ -7,6 +7,7 @@
     <span
       class="ant-tree-switcher"
       [ngStyle]="loadingStyle"
+      [style.visibility]="nzTreeNode.children?.length ? 'visible' : 'hidden'"
       [class.ant-tree-switcher_open]="nzTreeNode.isExpanded && !nzTreeNode.isLeaf && !nzTreeNode.isLoading"
       [class.ant-tree-switcher_close]="!nzTreeNode.isExpanded && !nzTreeNode.isLeaf && !nzTreeNode.isLoading"
       [class.ant-tree-switcher-noop]="nzTreeNode.isLeaf && !nzTreeNode.isLoading"

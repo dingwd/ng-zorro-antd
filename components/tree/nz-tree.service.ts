@@ -111,7 +111,7 @@ export class NzTreeService {
       }
     } else {
       if (node.isSelected) {
-        this.selectedNodeList = [ node ];
+        this.selectedNodeList = [node];
       } else {
         this.selectedNodeList = [];
       }
@@ -240,13 +240,11 @@ export class NzTreeService {
    */
   searchExpand(value: string): void {
     this.matchedNodeList = [];
-    if (!value) {
-      return;
-    }
     const loopParent = (node: NzTreeNode) => {
       // expand parent node
       if (node.getParentNode()) {
         node.getParentNode().isExpanded = true;
+        node.getParentNode().isParentMatched = true;
         loopParent(node.getParentNode());
       }
     };
@@ -258,6 +256,7 @@ export class NzTreeService {
         loopParent(node);
       } else {
         node.isExpanded = false;
+        node.isParentMatched = false;
       }
       node.children.forEach(cNode => {
         loopChild(cNode);
@@ -286,21 +285,21 @@ export class NzTreeService {
     }
     switch (dragPos) {
       case 0:
-        targetNode.addChildren([ this.selectedNode ]);
+        targetNode.addChildren([this.selectedNode]);
         this.resetNodeLevel(targetNode);
         break;
       case -1:
       case 1:
         const tIndex = dragPos === 1 ? 1 : 0;
         if (targetParent) {
-          targetParent.addChildren([ this.selectedNode ], targetParent.children.indexOf(targetNode) + tIndex);
+          targetParent.addChildren([this.selectedNode], targetParent.children.indexOf(targetNode) + tIndex);
           this.resetNodeLevel(this.selectedNode.getParentNode());
         } else {
           const targetIndex = this.rootNodes.indexOf(targetNode) + tIndex;
           // 根节点插入
           this.rootNodes.splice(targetIndex, 0, this.selectedNode);
-          this.rootNodes[ targetIndex ].parentNode = null;
-          this.rootNodes[ targetIndex ].level = 0;
+          this.rootNodes[targetIndex].parentNode = null;
+          this.rootNodes[targetIndex].level = 0;
         }
         break;
     }
@@ -346,8 +345,8 @@ export class NzTreeService {
   formatEvent(eventName: string, node: NzTreeNode, event: MouseEvent | DragEvent): NzFormatEmitEvent {
     const emitStructure = {
       'eventName': eventName,
-      'node'     : node,
-      'event'    : event
+      'node': node,
+      'event': event
     };
     switch (eventName) {
       case 'dragstart':

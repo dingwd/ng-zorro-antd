@@ -33,6 +33,7 @@ export class NzTreeNode {
   isSelected: boolean;
   isLoading: boolean;
   isMatched: boolean;
+  isParentMatched: boolean;
 
   constructor(option: NzTreeNodeOptions, parent: NzTreeNode = null) {
     this.title = option.title || '---';
@@ -55,7 +56,7 @@ export class NzTreeNode {
     this.isSelected = option.selected || false;
     this.isLoading = false;
     this.isMatched = false;
-
+    this.isParentMatched = false;
     /**
      * 初始化时父节点checked状态影响全部子节点
      */
