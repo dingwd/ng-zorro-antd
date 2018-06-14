@@ -31,10 +31,10 @@ import {
 import { NzUploadBtnComponent } from './nz-upload-btn.component';
 
 @Component({
-  selector           : 'nz-upload',
-  templateUrl        : './nz-upload.component.html',
+  selector: 'nz-upload',
+  templateUrl: './nz-upload.component.html',
   preserveWhitespaces: false,
-  changeDetection    : ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NzUploadComponent implements OnInit, OnChanges, OnDestroy {
   private i18n$: Subscription;
@@ -137,7 +137,7 @@ export class NzUploadComponent implements OnInit, OnChanges, OnDestroy {
     return this._withCredentials;
   }
 
-  @Input() nzRemove: ((file: UploadFile) => boolean) | Observable<boolean>;
+  @Input() nzRemove: ((file: UploadFile) => boolean | Observable<boolean>);
   @Input() nzPreview: (file: UploadFile) => void;
 
   @Output() nzChange: EventEmitter<UploadChangeParam> = new EventEmitter<UploadChangeParam>();
@@ -148,7 +148,7 @@ export class NzUploadComponent implements OnInit, OnChanges, OnDestroy {
     if (typeof this.nzShowUploadList === 'boolean' && this.nzShowUploadList) {
       this.nzShowUploadList = {
         showPreviewIcon: true,
-        showRemoveIcon : true
+        showRemoveIcon: true
       };
     }
     // filters
@@ -156,38 +156,38 @@ export class NzUploadComponent implements OnInit, OnChanges, OnDestroy {
     if (this.nzMultiple && this.nzLimit > 0 && filters.findIndex(w => w.name === 'limit') === -1) {
       filters.push({
         name: 'limit',
-        fn  : (fileList: UploadFile[]) => fileList.slice(-this.nzLimit)
+        fn: (fileList: UploadFile[]) => fileList.slice(-this.nzLimit)
       });
     }
     if (this.nzSize > 0 && filters.findIndex(w => w.name === 'size') === -1) {
       filters.push({
         name: 'size',
-        fn  : (fileList: UploadFile[]) => fileList.filter(w => (w.size / 1024) <= this.nzSize)
+        fn: (fileList: UploadFile[]) => fileList.filter(w => (w.size / 1024) <= this.nzSize)
       });
     }
     if (this.nzFileType && this.nzFileType.length > 0 && filters.findIndex(w => w.name === 'type') === -1) {
       const types = this.nzFileType.split(',');
       filters.push({
         name: 'type',
-        fn  : (fileList: UploadFile[]) => fileList.filter(w => ~types.indexOf(w.type))
+        fn: (fileList: UploadFile[]) => fileList.filter(w => ~types.indexOf(w.type))
       });
     }
     this._btnOptions = {
-      disabled       : this.nzDisabled,
-      accept         : this.nzAccept,
-      action         : this.nzAction,
-      beforeUpload   : this.nzBeforeUpload,
-      customRequest  : this.nzCustomRequest,
-      data           : this.nzData,
-      headers        : this.nzHeaders,
-      name           : this.nzName,
-      multiple       : this.nzMultiple,
+      disabled: this.nzDisabled,
+      accept: this.nzAccept,
+      action: this.nzAction,
+      beforeUpload: this.nzBeforeUpload,
+      customRequest: this.nzCustomRequest,
+      data: this.nzData,
+      headers: this.nzHeaders,
+      name: this.nzName,
+      multiple: this.nzMultiple,
       withCredentials: this.nzWithCredentials,
       filters,
-      onStart        : this.onStart,
-      onProgress     : this.onProgress,
-      onSuccess      : this.onSuccess,
-      onError        : this.onError
+      onStart: this.onStart,
+      onProgress: this.onProgress,
+      onSuccess: this.onSuccess,
+      onError: this.onError
     };
     return this;
   }
@@ -199,22 +199,22 @@ export class NzUploadComponent implements OnInit, OnChanges, OnDestroy {
   // region: upload
   private fileToObject(file: UploadFile): UploadFile {
     return {
-      lastModified    : file.lastModified,
+      lastModified: file.lastModified,
       lastModifiedDate: file.lastModifiedDate,
-      name            : file.filename || file.name,
-      size            : file.size,
-      type            : file.type,
-      uid             : file.uid,
-      response        : file.response,
-      error           : file.error,
-      percent         : 0,
+      name: file.filename || file.name,
+      size: file.size,
+      type: file.type,
+      uid: file.uid,
+      response: file.response,
+      error: file.error,
+      percent: 0,
       // tslint:disable-next-line:no-angle-bracket-type-assertion
-      originFileObj   : <any> file
+      originFileObj: <any>file
     };
   }
 
   private getFileItem(file: UploadFile, fileList: UploadFile[]): UploadFile {
-    return fileList.filter(item => item.uid === file.uid)[ 0 ];
+    return fileList.filter(item => item.uid === file.uid)[0];
   }
 
   private removeFileItem(file: UploadFile, fileList: UploadFile[]): UploadFile[] {
@@ -262,10 +262,10 @@ export class NzUploadComponent implements OnInit, OnChanges, OnDestroy {
     const targetItem = this.getFileItem(file, fileList);
     targetItem.percent = e.percent;
     this.nzChange.emit({
-      event   : e,
-      file    : { ...targetItem },
+      event: e,
+      file: { ...targetItem },
       fileList: this.nzFileList,
-      type    : 'progress'
+      type: 'progress'
     });
     this.cd.detectChanges();
   }
@@ -314,18 +314,22 @@ export class NzUploadComponent implements OnInit, OnChanges, OnDestroy {
   onRemove = (file: UploadFile): void => {
     this.upload.abort(file);
     file.status = 'removed';
-    ((this.nzRemove ? this.nzRemove instanceof Observable ? this.nzRemove : of(this.nzRemove(file)) : of(true)) as Observable<any>)
-    .pipe(filter((res: boolean) => res))
-    .subscribe(res => {
-      this.nzFileList = this.removeFileItem(file, this.nzFileList);
-      this.nzChange.emit({
-        file,
-        fileList: this.nzFileList,
-        type    : 'removed'
+    var obs: any = of(true);
+    if (this.nzRemove) {
+      obs = this.nzRemove(file);
+      obs = obs instanceof Observable ? obs : of(obs);
+    }
+    obs.pipe(filter((res: boolean) => res))
+      .subscribe(res => {
+        this.nzFileList = this.removeFileItem(file, this.nzFileList);
+        this.nzChange.emit({
+          file,
+          fileList: this.nzFileList,
+          type: 'removed'
+        });
+        this.nzFileListChange.emit(this.nzFileList);
+        this.cd.detectChanges();
       });
-      this.nzFileListChange.emit(this.nzFileList);
-      this.cd.detectChanges();
-    });
   }
 
   // endregion
