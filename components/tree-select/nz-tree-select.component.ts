@@ -94,7 +94,7 @@ export class NzTreeSelectComponent implements ControlValueAccessor, OnInit, Afte
   @Input() nzOpen = false;
   @Input() nzAllowClear = true;
   @Input() nzSize = 'default';
-  @Input() nzDropdownMatchSelectWidth = false;
+  @Input() nzDropdownMatchSelectWidth = true;
   @Input() nzPlaceHolder = '';
   @Input() nzShowSearch = true;
   @Input() nzDisabled = false;
@@ -270,7 +270,11 @@ export class NzTreeSelectComponent implements ControlValueAccessor, OnInit, Afte
       new ConnectionPositionPair({ originX: 'start', originY: 'bottom' }, { overlayX: 'start', overlayY: 'top' }),
       new ConnectionPositionPair({ originX: 'start', originY: 'top' }, { overlayX: 'start', overlayY: 'bottom' })
     ];
-    this.positionStrategy = this.overlay.position().flexibleConnectedTo(this.treeSelect).withPositions(positions).withLockedPosition(true);
+    this.positionStrategy = this.overlay.position()
+    .flexibleConnectedTo(this.treeSelect)
+    .withPositions(positions)
+    .withFlexibleDimensions(false)
+    .withPush(false);
     return this.positionStrategy;
   }
 
@@ -363,6 +367,13 @@ export class NzTreeSelectComponent implements ControlValueAccessor, OnInit, Afte
   }
 
   updateCdkConnectedOverlayStatus(): void {
+    const overlayWidth = this.treeSelect.nativeElement.getBoundingClientRect().width;
+    if (this.nzDropdownMatchSelectWidth) {
+      this.overlayRef.updateSize({ width: overlayWidth });
+    } else {
+      this.overlayRef.updateSize({ minWidth: overlayWidth });
+    }
+
     if (this.nzOpen) {
       this.renderer.removeStyle(this.overlayRef.backdropElement, 'display');
     } else {
@@ -378,6 +389,12 @@ export class NzTreeSelectComponent implements ControlValueAccessor, OnInit, Afte
         this.value = [ (value as string) ];
       }
       setTimeout(() => this.updateSelectedNodes(), 100);
+    } else {
+      this.value = [];
+      this.selectedNodes.forEach(node => {
+        this.removeSelected(node, false);
+      });
+      this.selectedNodes = [];
     }
   }
 
