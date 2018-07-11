@@ -70,6 +70,7 @@ export class NzModalComponent<T = any, R = any> extends NzModalRef<T, R> impleme
   @Input() nzStyle: object;
   @Input() nzIconType: string = 'question-circle'; // Confirm Modal ONLY
   @Input() nzTitle: string | TemplateRef<{}>;
+  @Input() @InputBoolean() nzIframe: boolean = false;
   @Input() @InputBoolean() nzClosable: boolean = true;
   @Input() @InputBoolean() nzMask: boolean = true;
   @Input() @InputBoolean() nzMaskClosable: boolean = true;

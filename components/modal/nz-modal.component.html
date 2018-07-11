@@ -24,6 +24,7 @@
       [style.transform-origin]="transformOrigin"
       role="document"
     >
+      <iframe *ngIf="nzIframe" class="ant-modal-iframe" frameBorder="0" scrolling="no"></iframe>
       <div class="ant-modal-content">
         <button *ngIf="nzClosable" (click)="onClickCloseBtn($event)" class="ant-modal-close" aria-label="Close">
           <span class="ant-modal-close-x"></span>
