@@ -325,6 +325,7 @@ export class NzUploadComponent implements OnInit, OnChanges, OnDestroy {
         fileList: this.nzFileList,
         type    : 'removed'
       });
+    });
   }
 
   // endregion
