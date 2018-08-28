@@ -1,5 +1,5 @@
 {
-  "name": "ng-zorro-antd",
+  "name": "@xlh/ng-zorro-antd",
   "version": "1.4.0",
   "license": "MIT",
   "description": "An enterprise-class UI components based on Ant Design and Angular",
