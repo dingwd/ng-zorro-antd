@@ -16,6 +16,17 @@ export class NzTreeService {
   halfCheckedNodeList: NzTreeNode[] = [];
   matchedNodeList: NzTreeNode[] = [];
 
+  clearCheckedStatus(root: NzTreeNode[]): void {
+    root.forEach(node => {
+      node.isAllChecked = false;
+      node.isHalfChecked = false;
+      node.isChecked = false;
+      if (node.children.length) {
+        this.clearCheckedStatus(node.children);
+      }
+    });
+  }
+
   /**
    * init data to NzTreeNode
    */
@@ -111,6 +122,12 @@ export class NzTreeService {
     return this.selectedNode;
   }
 
+  clearSelectedStatus(): void {
+    this.selectedNodeList = [];
+    this.rootNodes.forEach((child) => {
+      this.resetNodeActive(child);
+    });
+  }
   // if node is clicked, add or remove node to select list
   setSelectedNodeList(node: NzTreeNode, isMultiple: boolean): void {
     if (isMultiple) {
@@ -132,7 +149,11 @@ export class NzTreeService {
   getSelectedNodeList(): NzTreeNode[] {
     return this.selectedNodeList;
   }
-
+  getSelectedKeys(): string[] {
+    const ids: string[] = [];
+    this.selectedNodeList.forEach(x => ids.push(x.key));
+    return ids;
+  }
   /**
    * merge checked nodes
    */
@@ -189,7 +210,26 @@ export class NzTreeService {
   getCheckedNodeList(): NzTreeNode[] {
     return this.checkedNodeList;
   }
-
+  getCheckedKeys(): string[] {
+    const ids: string[] = [];
+    const nodes: NzTreeNode[] = [];
+    this._getCheckedNodes(this.checkedNodeList, nodes);
+    nodes.forEach(x => ids.push(x.key));
+    return ids;
+  }
+  getCheckedNodes(): NzTreeNode[] {
+    const nodes: NzTreeNode[] = [];
+    this._getCheckedNodes(this.checkedNodeList, nodes);
+    return nodes;
+  }
+  _getCheckedNodes(nodeList: NzTreeNode[], nodes?: NzTreeNode[]): void {
+    nodeList.forEach((node) => {
+      if (node.isChecked) {
+        nodes.push(node);
+      }
+      this._getCheckedNodes(node.children, nodes);
+    });
+  }
   /**
    * return half checked nodes
    * @returns {NzTreeNode[]}
@@ -212,6 +252,61 @@ export class NzTreeService {
       loopNode(rNode);
     });
     return this.halfCheckedNodeList;
+  }
+
+  getNodeByKey(key: string): NzTreeNode {
+    let rnode = null;
+    const loopChild = (node: NzTreeNode) => {
+      if (node.key === key) {
+        rnode = node;
+      }
+      node.children.forEach(cNode => {
+        loopChild(cNode);
+      });
+    };
+    this.rootNodes.forEach(node => {
+      loopChild(node);
+    });
+    return rnode;
+  }
+  getSimpleNodes(): NzTreeNode[] {
+    const nodes: NzTreeNode[] = [];
+    const loopChild = (node: NzTreeNode) => {
+      nodes.push(node);
+      node.children.forEach(cNode => {
+        loopChild(cNode);
+      });
+    };
+    this.rootNodes.forEach(node => {
+      loopChild(node);
+    });
+    return nodes;
+  }
+  selectNode(node: NzTreeNode, addFlag: boolean, isSilent: boolean): void {
+    if (!node) { return; }
+    node.isSelected = false;
+    this.initNodeActive(node, addFlag);
+    if (isSilent) {
+      let parentNode = node.getParentNode();
+      while (parentNode) {
+        parentNode.isExpanded = true;
+        parentNode = parentNode.getParentNode();
+      }
+      setTimeout(() => {
+        const dom = document.getElementById(`span_${node.key}`);
+        let treeDom = dom.parentElement;
+        while (treeDom && !treeDom.classList.contains('ant-tree')) {
+          treeDom = treeDom.parentElement;
+        }
+        while (treeDom && window.getComputedStyle(treeDom).overflow === 'visible') {
+          treeDom = treeDom.parentElement;
+        }
+        if (dom.offsetTop - treeDom.offsetTop < treeDom.scrollTop || dom.offsetTop - treeDom.offsetTop + dom.offsetHeight > treeDom.scrollTop + treeDom.clientHeight) {
+          treeDom.scrollTop = dom.offsetTop - treeDom.offsetTop - treeDom.clientHeight + dom.offsetHeight;
+        }
+        treeDom.scrollLeft = dom.offsetLeft - treeDom.offsetLeft - Math.floor(treeDom.clientWidth / 2);
+      }, 100);
+    }
   }
 
   /**

@@ -7,14 +7,14 @@ import { NzTreeNode } from './nz-tree-node';
 import { NzTreeService } from './nz-tree.service';
 
 @Component({
-  selector   : 'nz-tree',
+  selector: 'nz-tree',
   templateUrl: './nz-tree.component.html',
-  providers  : [
+  providers: [
     NzTreeService,
     {
-      provide    : NG_VALUE_ACCESSOR,
+      provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => NzTreeComponent),
-      multi      : true
+      multi: true
     }
   ]
 })
@@ -23,12 +23,13 @@ export class NzTreeComponent implements OnInit {
   _showLine = false;
   _prefixCls = 'ant-tree';
   classMap = {
-    [ this._prefixCls ]               : true,
-    [ this._prefixCls + '-show-line' ]: false,
-    [ 'draggable-tree' ]              : false
+    [this._prefixCls]: true,
+    [this._prefixCls + '-show-line']: false,
+    ['draggable-tree']: false
   };
   ngModelNodes: NzTreeNode[] = [];
   defaultCheckedKeys: string[] = [];
+  defaultSelectedKeys: string[] = [];
   @ContentChild('nzTreeTemplate') nzTreeTemplate: TemplateRef<{}>;
 
   @Input() nzCheckStrictly: boolean = false;
@@ -39,11 +40,19 @@ export class NzTreeComponent implements OnInit {
   @Input() nzMultiple;
   @Input() nzDefaultExpandAll: boolean = false;
   @Input() nzDefaultExpandedKeys: string[] = [];
-  @Input() nzDefaultSelectedKeys: string[] = [];
+  @Input()
+  set nzDefaultSelectedKeys(value: string[]) {
+    this.defaultSelectedKeys = value;
+    this.nzTreeService.clearSelectedStatus();
+  }
+  get nzDefaultSelectedKeys(): string[] {
+    return this.defaultSelectedKeys;
+  }
   @Input() nzBeforeDrop: (confirm: NzFormatBeforeDropEvent) => Observable<boolean>;
   @Input()
   set nzDefaultCheckedKeys(value: string[]) {
     this.defaultCheckedKeys = value;
+    this.nzTreeService.clearCheckedStatus(this.ngModelNodes);
     this.nzTreeService.initTreeNodes(this.ngModelNodes, this.nzDefaultCheckedKeys, this.nzCheckStrictly);
   }
   get nzDefaultCheckedKeys(): string[] {
@@ -90,9 +99,9 @@ export class NzTreeComponent implements OnInit {
 
   setClassMap(): void {
     this.classMap = {
-      [ this._prefixCls ]               : true,
-      [ this._prefixCls + '-show-line' ]: this.nzShowLine,
-      [ 'draggable-tree' ]              : this.nzDraggable
+      [this._prefixCls]: true,
+      [this._prefixCls + '-show-line']: this.nzShowLine,
+      ['draggable-tree']: this.nzDraggable
     };
   }
 
@@ -102,13 +111,35 @@ export class NzTreeComponent implements OnInit {
   getCheckedNodeList(): NzTreeNode[] {
     return this.nzTreeService.getCheckedNodeList();
   }
+  getCheckedKeys(): string[] {
+    return this.nzTreeService.getCheckedKeys();
+  }
+  getCheckedNodes(): NzTreeNode[] {
+    return this.nzTreeService.getCheckedNodes();
+  }
 
   getSelectedNodeList(): NzTreeNode[] {
     return this.nzTreeService.getSelectedNodeList();
   }
+  getSelectedKeys(): string[] {
+    return this.nzTreeService.getSelectedKeys();
+  }
 
   getHalfCheckedNodeList(): NzTreeNode[] {
     return this.nzTreeService.getHalfCheckedNodeList();
+  }
+
+  getNodeByKey(key: string): NzTreeNode {
+    return this.nzTreeService.getNodeByKey(key);
+  }
+
+  getSimpleNodes(): NzTreeNode[] {
+    return this.nzTreeService.getSimpleNodes();
+  }
+
+  selectNode(node: NzTreeNode, addFlag: boolean = false, isSilent: boolean = false): void {
+    const caddFlag = this.nzMultiple && addFlag;
+    this.nzTreeService.selectNode(node, caddFlag, isSilent);
   }
 
   // ngModel

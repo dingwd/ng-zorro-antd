@@ -1,4 +1,4 @@
-<li #dragElement *ngIf="!nzSearchValue || nzTreeNode.isParentMatched || nzTreeNode.isMatched"
+<li  id="li_{{_treeNode.key}}"  #dragElement *ngIf="!nzSearchValue || nzTreeNode.isParentMatched || nzTreeNode.isMatched"
   [class.ant-tree-treenode-loading]="nzTreeNode.isLoading && !nzTreeNode.isLeaf"
   [class.ant-tree-treenode-disabled]="nzTreeNode.isDisabled"
   (dblclick)="_dblClickNode($event,nzTreeNode)"
@@ -32,6 +32,7 @@
   <ng-container *ngIf="!nzTreeTemplate">
     <span
       title="{{nzTreeNode.title}}"
+      id="span_{{_treeNode.key}}"
       class="ant-tree-node-content-wrapper"
       [class.ant-tree-node-selected]="nzTreeNode.isSelected"
       [class.ant-tree-node-content-wrapper-open]="nzTreeNode.isExpanded && nzTreeNode.getChildren().length>0"
